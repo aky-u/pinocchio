@@ -223,6 +223,42 @@ namespace pinocchio
       details::addManipulator(model, mimic);
     }
 
+    template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
+    void freeFloatingManipulator(
+      ModelTpl<Scalar, Options, JointCollectionTpl> & model, const bool mimic)
+      {
+        using Model = ModelTpl<Scalar, Options, JointCollectionTpl>;
+        using SE3 = SE3Tpl<Scalar, Options>;
+      
+        model = Model(); // Initialize the model
+      
+        // Add a free-flyer joint at the root
+        JointIndex base_joint = model.addJoint(
+          0, JointModelFreeFlyerTpl<Scalar, Options>(),
+          SE3::Identity(),
+          "base_joint"
+        );
+      
+        // Generate the manipulator model
+        Model manipulator_model;
+        manipulator(manipulator_model, mimic);
+      
+        // Add the manipulator model to the free-flyer joint
+        JointIndex parent = base_joint;
+        for(JointIndex i = 1; i < manipulator_model.joints.size(); ++i)
+        {
+          const auto & joint = manipulator_model.joints[i];
+          const auto & placement = manipulator_model.jointPlacements[i];
+          const std::string & name = manipulator_model.names[i];
+          const InertiaTpl<Scalar, Options> & inertia = manipulator_model.inertias[i];
+      
+          JointIndex idx = model.addJoint(parent, joint, placement, name);
+          model.appendBodyToJoint(idx, inertia, SE3::Identity());
+      
+          parent = idx;
+        }
+      }
+
 #ifdef PINOCCHIO_WITH_HPP_FCL
     template<typename Scalar, int Options, template<typename, int> class JointCollectionTpl>
     void manipulatorGeometries(

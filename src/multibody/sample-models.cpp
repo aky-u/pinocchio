@@ -17,6 +17,10 @@ namespace pinocchio
       context::Model &, bool);
 
     template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void
+    freeFloatingManipulator<context::Scalar, context::Options, JointCollectionDefaultTpl>(
+      context::Model &, bool);
+
+    template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void
     humanoid<context::Scalar, context::Options, JointCollectionDefaultTpl>(context::Model &, bool);
 
     template PINOCCHIO_EXPLICIT_INSTANTIATION_DEFINITION_DLLAPI void
